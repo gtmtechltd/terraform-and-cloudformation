@@ -1,3 +1,4 @@
 flags_common = {
-  availablity_zones = "a,b,c"
+  availability_zones = "a,b,c"
+  company_name      = "gtmtechltd"
 }

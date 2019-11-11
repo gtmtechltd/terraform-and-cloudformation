@@ -1,0 +1,54 @@
+#!/bin/bash
+# shellcheck disable=SC2086 disable=SC1091
+
+die() {
+  echo "$@" >&2
+  exit 1
+}
+
+target=provision
+[ "$1" == "bootstrap" ] && { target=bootstrap; shift; };
+[ -z "$2" ] && die "Usage: $0 [bootstrap] <environment> <action> [args] e.g. $0 production plan, $0 staging apply"
+[ -z "$(which terraform)" ] && die "Please install terraform (version in .tfenv)"
+
+full_environment="$1"                    # e.g. production.eu-west-1
+action="$2"
+environment="${full_environment%%.*}"
+if [[ "${full_environment}" = *"."* ]] ; then region="${full_environment##*.}" ; else region=eu-west-1 ; fi
+full_environment="${environment}.${region}"
+[ ! -f "environments/${full_environment}.tfvars" ] && die "No such environment: ${full_environment}"
+account_id="$(cat "environments/${full_environment}.tfvars" | grep ^account_id | awk -F= '{print $2}' | awk -F'"' '{print $2}')"
+
+# Creating terraform TMPDIR allows multiple CONCURRENT terraform runs as avoids shared .terraform directory
+TMPDIR="$(mktemp -d "/tmp/terraform.XXXXXX")"
+tar -cf - -C "${target}" . | tar -xf - -C "${TMPDIR}"
+tar -cf - environments modules | tar -xf - -C "${TMPDIR}"
+
+# Use previously cached plugins for speed
+PLUGINS=""
+[ -d .terraform.plugins ] && {
+  tar -cf - .terraform.plugins | tar -xf - -C "${TMPDIR}" ;
+  PLUGINS="-plugin-dir=.terraform.plugins/plugins/$(uname -s | tr '[:upper:]' '[:lower:]')_amd64 -get-plugins=true" ; } ;
+
+
+shift 2
+set -x
+
+( cd "${TMPDIR}" && \
+  ls && \
+  [ -f .tfrc ] && source .tfrc
+  terraform init ${PLUGINS} ${STATE_FLAGS} && \
+  terraform "${action}" "$@" \
+    ${TF_FLAGS} \
+    -var-file="environments/${full_environment}.tfvars" \
+    -var-file="environments/common.tfvars" \
+    -var='flags_cli={environment="'"${environment}"'", region="'"${region}"'"}' )
+
+# Persist state between terraform run (if using local state)
+[ -d "${TMPDIR}/state" ] && { tar -cf - -C "${TMPDIR}/state" . | tar -xf - -C "${target}/state" ; } ;
+
+# Persist plugins between terraform runs
+mkdir -p ".terraform.plugins/plugins/$(uname -s | tr '[:upper:]' '[:lower:]')_amd64"
+if [ -d "${TMPDIR}/.terraform.plugins" ]; 
+  then { tar -cf - -C "${TMPDIR}/.terraform.plugins" plugins | tar -xf - -C .terraform.plugins ; } ;
+  else { tar -cf - -C "${TMPDIR}/.terraform" plugins | tar -xf - -C .terraform.plugins ; } ; fi

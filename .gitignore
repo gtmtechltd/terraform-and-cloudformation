@@ -1,0 +1,4 @@
+*/.terraform.plugins
+gtmtech*.tfstate
+gtmtech*.backup
+gtmtech*.tfvars

@@ -7,4 +7,8 @@ locals {
   common_tags = {
     Owner = "devops"
   }
+
+  ec2_test_tags = {
+    Name = "test"
+  }
 }

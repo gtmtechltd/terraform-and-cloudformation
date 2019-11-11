@@ -1,5 +1,5 @@
 provider "aws" {
-  alias = "networkingadmin"
+  alias = "networkadmin"
 }
 
 provider "aws" {

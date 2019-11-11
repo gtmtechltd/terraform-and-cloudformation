@@ -1,0 +1,2 @@
+# Set state to local state
+TF_FLAGS="-state=state/${environment}.tfstate"

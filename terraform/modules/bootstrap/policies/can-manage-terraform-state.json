@@ -1,0 +1,54 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListDynamoDBTables",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:ListTables",
+        "dynamodb:DescribeTable",
+        "dynamodb:Query",
+        "dynamodb:Scan"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ManageDBStateLocks",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:DeleteItem"
+      ],
+      "Resource": "arn:aws:dynamodb:*:*:table/tflocks*"
+    },
+    {
+      "Sid": "ListAllBuckets",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListAllMyBucket"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ReadStateBucket",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucketLocation",
+        "s3:List*"
+      ],
+      "Resource": "arn:aws:s3:::${COMPANY_NAME}-tfstates-${REGION}-${ENVIRONMENT}"
+    },
+    {
+      "Sid": "WriteStateFiles",
+      "Effect": "Allow",
+      "Action": [
+        "s3:List*",
+        "s3:Get*",
+        "s3:Head*",
+        "s3:Put*"
+      ],
+      "Resource": "arn:aws:s3:::${COMPANY_NAME}-tfstates-${REGION}-${ENVIRONMENT}${PATH}*"
+    }
+  ]
+}

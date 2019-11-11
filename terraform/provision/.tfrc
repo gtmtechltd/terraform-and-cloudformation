@@ -1,0 +1,7 @@
+# Set backend state store config
+STATE_FLAGS="-backend=true \
+             -backend-config=key=${environment} \
+             -backend-config=bucket=gtmtechltd-tfstates-${region}-${environment} \
+             -backend-config=region=${region} \
+             -backend-config=dynamodb_table=tflocks-${region} \
+             -backend-config=role_arn=arn:aws:iam::${account_id}:role/terraformStateWriter"
