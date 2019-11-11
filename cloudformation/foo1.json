@@ -1,0 +1,34 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": "AWS::Serverless-2016-10-31",
+  "Description": "foo1 lambda function",
+
+  "Globals": {},
+
+  "Parameters": {
+    "NodeEnv": {
+      "Type": "String",
+      "Default": "staging"
+    }
+  },
+
+  "Resources": {
+
+    "Foo1Function": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "src/ec2-query.js",
+        "Runtime": "nodejs8.10",
+        "Timeout" : 20,
+        "Environment": {
+          "Variables": {
+            "NODE_ENV": {"Ref": "NodeEnv"},
+          }
+        },
+        "Role": {"Fn::ImportValue" : "LambdaExecuteRole"},
+        "Events": {}
+      }
+    }
+  }
+}
+
