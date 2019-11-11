@@ -11,6 +11,18 @@ COMPANY_NAME=gtmtechltd
 ENVIRONMENT=$1
 TMPFILE="$( mktemp /tmp/cf.XXXXXX )"
 
+SECURITY_GROUP_ID="$(
+  aws ec2 describe-security-groups \
+          --region eu-west-1 \
+          --query 'SecurityGroups[?GroupName==`main-lambda-foo`].GroupId' \
+          --output text)"
+
+SUBNET_ID="$(
+  aws ec2 describe-subnets \
+          --region eu-west-1 \
+          --query 'Subnets[].{SubnetId: SubnetId, Name: (Tags[?Key==`Name`].Value)[0]}[?Name==`main-private-a`].SubnetId' \
+          --output text)"
+
 set -x
 aws --region eu-west-1 cloudformation package \
     --template-file foo1.json \
@@ -21,5 +33,5 @@ aws --region eu-west-1 cloudformation package \
 aws --region eu-west-1 cloudformation deploy \
     --template-file "${TMPFILE}" \
     --stack-name foo1-stack \
-    --parameter-overrides NodeEnv=test
+    --parameter-overrides NodeEnv=test "SecurityGroupId=${SECURITY_GROUP_ID}" "SubnetId=${SUBNET_ID}"
 

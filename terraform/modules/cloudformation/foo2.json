@@ -28,7 +28,7 @@
         "Timeout" : 20,
         "Environment": {
           "Variables": {
-            "NODE_ENV": {"Ref": "NodeEnv"},
+            "NODE_ENV": {"Ref": "NodeEnv"}
           }
         },
         "Role": { "Fn::Sub": [ "arn:aws:iam::${Account}:role/lambda-function-foo", { "Account": {"Ref" : "AWS::AccountId" }} ]},
@@ -41,4 +41,3 @@
     }
   }
 }
-
