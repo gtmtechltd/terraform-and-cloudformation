@@ -7,3 +7,11 @@ module "networking" {
     aws.securityadmin = "aws.securityadmin"
   }
 }
+
+module "lambda" {
+  source = "modules/lambda"
+  flags  = "${local.flags}"
+  providers {
+    aws.storageadmin = "aws.storageadmin"
+  }
+}

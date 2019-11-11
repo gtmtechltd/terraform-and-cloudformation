@@ -25,7 +25,7 @@
             "NODE_ENV": {"Ref": "NodeEnv"},
           }
         },
-        "Role": {"Fn::ImportValue" : "LambdaExecuteRole"},
+        "Role": { "Fn::Sub": [ "arn:aws:iam::${Account}:role/lambda-function-foo", { "Account": {"Ref" : "AWS::AccountId" }} ]},
         "Events": {}
       }
     }
